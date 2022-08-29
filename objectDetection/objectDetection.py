@@ -3,15 +3,6 @@ from gui_buttons import Buttons
 
 # Initialize Buttons
 button = Buttons()
-button.add_button("person", 20, 20)
-button.add_button("bottle", 20, 100)
-button.add_button("banana", 20, 180)
-button.add_button("apple", 20, 260)
-button.add_button("book", 20, 340)
-button.add_button("car", 240, 20)
-button.add_button("cat", 240, 100)
-button.add_button("dog", 240, 180)
-
 colors = button.colors
 
 
@@ -27,25 +18,15 @@ with open("dnn_model/classes.txt", "r") as file_object:
         class_name = class_name.strip()
         classes.append(class_name)
 
-print("Objects list")
-print(classes)
-
-
 # Initialize camera
 cap = cv2.VideoCapture("video1.mp4")
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 # FULL HD 1920 x 1080
 
-
-def click_button(event, x, y, flags, params):
-    global button_person
-    if event == cv2.EVENT_LBUTTONDOWN:
-        button.button_click(x, y)
-
 # Create window
 cv2.namedWindow("Frame")
-cv2.setMouseCallback("Frame", click_button)
+
 
 while True:
     # Get frames
@@ -62,13 +43,9 @@ while True:
         class_name = classes[class_id]
         color = colors[class_id]
 
-        if class_name in active_buttons:
+        if class_name == "bottle":
             cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 3, color, 2)
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 3)
-
-
-    # Display buttons
-    button.display_buttons(frame)
 
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1)
