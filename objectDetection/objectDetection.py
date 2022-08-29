@@ -19,7 +19,7 @@ with open("dnn_model/classes.txt", "r") as file_object:
         classes.append(class_name)
 
 # Initialize camera
-cap = cv2.VideoCapture("video1.mp4")
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 # FULL HD 1920 x 1080
