@@ -38,12 +38,30 @@ else:
      height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
      
      isCameraConnected = True
+     bottlesOnFrame = 0
+     bottlesOnPrevousFrame = 0
+
+     controlQuantityBottlesOnScene = {}
+     m = 10
+     n = 5
+     k = 5
+
+     test = [1,2,3,4,5,6,7,8,9]
+     print(test[-k:])
+
+     #to control the quantity bottles on the scene we use the detection method m/n for k
+     #m - this is number of frames in which we control the number of bottles
+     #n - this is the number of frames in which we detected bottles
+     #k - this is the number of frames in which we did not detected bottles
+     #if in m frames 
      while isCameraConnected:
           # Get frames
+          
           isCameraConnected, frame = cap.read()
           if isCameraConnected:
 
                # Object Detection
+               bottelsDetected = 0
                (class_ids, scores, bboxes) = model.detect(frame, confThreshold=0.3, nmsThreshold=.4)
                for class_id, score, bbox in zip(class_ids, scores, bboxes):
                     (x, y, w, h) = bbox
@@ -53,6 +71,27 @@ else:
                     if class_name == "bottle":
                          cv.putText(frame, class_name, (x, y - 10), cv.FONT_HERSHEY_PLAIN, 3, colorBottle, 2)
                          cv.rectangle(frame, (x, y), (x + w, y + h), colorBottle, 3)
+                         bottelsDetected+=1
+               
+               bottlesOnPrevousFrame = bottlesOnFrame 
+               
+               for key in controlQuantityBottlesOnScene.keys():
+                    controlQuantityBottlesOnScene[key][:-1] = controlQuantityBottlesOnScene[key][1:]
+               
+               if controlQuantityBottlesOnScene.get(bottelsDetected) == None:
+                    controlQuantityBottlesOnScene[bottelsDetected] = np.zeros(m, np.uint8)
+              
+               controlQuantityBottlesOnScene[bottelsDetected][-1] = 1
+
+               for key in controlQuantityBottlesOnScene.keys():
+                    if np.sum(controlQuantityBottlesOnScene[key][-k:]) == 0:
+                         controlQuantityBottlesOnScene.pop(key)
+                    elif np.sum(controlQuantityBottlesOnScene[key]) >= n:
+                         if key > bottlesOnFrame:
+                              bottlesOnFrame = key
+
+               if bottlesOnFrame < bottlesOnPrevousFrame:
+                    print("Bottle !!!!!!!!!!!!!!!!!")
 
           else:
                message = "Webcam disconnect"
