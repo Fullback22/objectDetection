@@ -2,6 +2,10 @@ import cv2 as cv
 import numpy as np
 from gui_buttons import Buttons
 
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
+
 # Opencv DNN
 net = cv.dnn.readNet("dnn_model/yolov4-tiny.weights", "dnn_model/yolov4-tiny.cfg")
 model = cv.dnn_DetectionModel(net)
@@ -55,6 +59,17 @@ else:
      #n - this is the number of frames in which we detected bottles
      #k - this is the number of frames in which we did not detected bottles
      #if in m frames 
+
+     # create message object instance
+     msg = MIMEMultipart()
+ 
+     # setup the parameters of the message
+     password = "youPassword"
+     msg['From'] = "youMail"
+     msg['To'] = "targetMail"
+     msg['Subject'] = "Subscription"
+
+
      while isCameraConnected:
           # Get frames
           
@@ -100,7 +115,19 @@ else:
                                         
 
                if bottlesOnFrame < bottlesOnPrevousFrame:
-                    print("Bottle !!!!!!!!!!!!!!!!!")
+
+                    message = "The bottle is gone"
+                    # add in the message body
+                    msg.attach(MIMEText(message, 'plain'))
+ 
+                    #create server
+                    server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
+                    server.login(msg['From'], password)
+ 
+                    # send the message via the server.
+                    server.sendmail(msg['From'], msg['To'], msg.as_string())
+ 
+                    server.quit()
 
           else:
                message = "Webcam disconnect"
