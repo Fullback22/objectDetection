@@ -41,10 +41,11 @@ else:
      bottlesOnFrame = 0
      bottlesOnPrevousFrame = 0
 
+
      controlQuantityBottlesOnScene = {}
-     m = 10
-     n = 5
-     k = 5
+     m = 50
+     n = 10
+     k = 20
 
      test = [1,2,3,4,5,6,7,8,9]
      print(test[-k:])
@@ -74,21 +75,29 @@ else:
                          bottelsDetected+=1
                
                bottlesOnPrevousFrame = bottlesOnFrame 
-               
-               for key in controlQuantityBottlesOnScene.keys():
-                    controlQuantityBottlesOnScene[key][:-1] = controlQuantityBottlesOnScene[key][1:]
-               
-               if controlQuantityBottlesOnScene.get(bottelsDetected) == None:
+               bottlesOnFrame = 0
+
+               if controlQuantityBottlesOnScene.get(bottelsDetected, np.zeros(1, np.uint8)).any() == np.zeros(1, np.uint8):
                     controlQuantityBottlesOnScene[bottelsDetected] = np.zeros(m, np.uint8)
-              
-               controlQuantityBottlesOnScene[bottelsDetected][-1] = 1
+               
+               deleteKey = []
 
                for key in controlQuantityBottlesOnScene.keys():
+                    controlQuantityBottlesOnScene[key][:-1] = controlQuantityBottlesOnScene[key][1:]
+                    if key == bottelsDetected:
+                         controlQuantityBottlesOnScene[key][-1] = 1
+                    else:
+                         controlQuantityBottlesOnScene[key][-1] = 0
+
                     if np.sum(controlQuantityBottlesOnScene[key][-k:]) == 0:
-                         controlQuantityBottlesOnScene.pop(key)
+                         deleteKey.append(key)
                     elif np.sum(controlQuantityBottlesOnScene[key]) >= n:
                          if key > bottlesOnFrame:
                               bottlesOnFrame = key
+
+               for key in deleteKey:
+                    controlQuantityBottlesOnScene.pop(key)
+                                        
 
                if bottlesOnFrame < bottlesOnPrevousFrame:
                     print("Bottle !!!!!!!!!!!!!!!!!")
